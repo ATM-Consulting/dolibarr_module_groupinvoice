@@ -1,0 +1,92 @@
+# GroupInvoice management
+# Copyright (C) 2014 Raphaël Doursenaud <rdoursenaud@gpcsolutions.fr>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#
+# Générique
+#
+
+# Module label 'ModuleXXXName'
+# (where XXX is value of numeric property 'numero' of module)
+Module103086Name = Factures groupées
+# Module description 'ModuleXXXDesc'
+# (where XXX is value of numeric property 'numero' of module)
+Module103086Desc = Gestion des Factures groupées
+Permission1030861=Voir les Factures groupées
+Permission1030862=Modifier les Factures groupées
+Permission1030863=Supprimer Factures groupées
+
+#
+# Page d'administration
+#
+GroupInvoiceSetup = Configuration du module Factures groupées
+Settings = Réglages
+GroupInvoicePDFModels = Modèles de documents de facture groupé PDF
+GroupInvoicePDFTexts = Textes du document de facture groupé PDF
+Text = Texte
+BeforeInvoiceList = Avant la liste de factures
+AfterInvoiceList = Après la liste de factures
+GroupInvoiceNumberingRules=Régle de numérotation des relances
+SimpleNumRefModelDesc=Renvoie le numéro sous la forme %s-yymm-nnnn où yy est l'année, mm le mois et nnnn un compteur séquentiel sans rupture et sans remise à 0
+
+#
+# Page À propos
+#
+About = À propos
+GroupInvoiceAbout = À propos des Factures groupées
+GroupInvoiceAboutPage = Page à propos des Factures groupées
+
+#
+# Page de création
+#
+NewGroupInvoice = Nouvelle facture groupées
+NoInvoice = Pas de factures
+Use = Utiliser
+NewGroupInvoiceUnique=Création de facture groupées par client
+InvoiceValidPeriod=Filtre par période de validation
+
+#
+# Page de liste
+#
+NoOpennedGroupInvoice = Pas de facture groupé ouverte
+DisplayAllGroupInvoice=Afficher toute les factures groupé
+GroupInvoiceContactFileName = groupinvoice_client
+NoGroupInvoiceSelected=Pas de facture groupées selectionné
+LastSendEmailDate=Dernier envoie mail
+SendEmail=Envoie Email
+CannotSendMailGroupInvoiceInvoiceContact=L'email de le facture groupé %s n'as pu être envoyé completement car les factures de cette facture groupé n'ont pas de contact de facturation client (ou le contact n'a pas d'email)
+CannotSendMailGroupInvoiceEmailFrom=Impossible d'envoyer l'email de la facture groupé %s car l'email de l'utilisateur courant n'est pas renseigné.
+CannotSendMailGroupInvoiceRequesterContact =Impossible d'envoyer l'email de la facture groupé %s car l'email du demandeur n'est pas renseigné.
+
+#
+# Page fiche
+#
+GroupInvoice = Facture groupées
+GroupInvoiceRecord = Fiche facture groupées
+ConfirmDeleteGroupInvoice=Etes vous sûre de supprimer cette facture groupées ?
+GroupInvoiceRemoveInvoice=Enlever cette facture de la facture groupées
+SendReminderGroupInvoiceRef=Bonjour, <BR><BR> Veuillez tourvé ci jiont un relevé de facture pour les prestations effectués par %s pour au profit de votre société. <BR><BR> Le service comptabilité  <BR><BR> __SIGNATURE__				
+SendReminderGroupInvoiceTopic=Relever de compte
+GroupInvoiceSendByMail=Facture groupées envoyée par email
+ActionAC_GRPINV_S=Facture groupées envoyée par email
+SendReminderBillByMail=Envoie de facture groupées par email
+
+
+#
+# Fichier PDF
+#
+PDFTaroDescription = Modèle de facture groupé PDF complet
+InvoiceReference = Référence facture
+GroupInvoicePDFTitle=Relevé de factures

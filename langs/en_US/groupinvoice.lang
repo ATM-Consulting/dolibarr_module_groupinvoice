@@ -1,0 +1,93 @@
+# Invoice Group management
+# Copyright (C) 2014 Raphaël Doursenaud <rdoursenaud@gpcsolutions.fr>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#
+# Generic
+#
+
+# Module label 'ModuleXXXName'
+# (where XXX is value of numeric property 'numero' of module)
+Module103086Name = Invoice Group
+# Module description 'ModuleXXXDesc'
+# (where XXX is value of numeric property 'numero' of module)
+Module103086Desc = Invoice Group management
+Permission1030861=See grouped invoices
+Permission1030862=Modify grouped invoices
+Permission1030863=Delete grouped invoices
+
+#
+# Admin page
+#
+InvoiceGroupSetup = Invoice Group setup
+Settings = Settings
+InvoiceGroupPDFModels = Invoice Group PDF documents models
+InvoiceGroupPDFTexts = Invoice Group PDF document texts
+Text = Text
+BeforeInvoiceList = Before invoice list
+AfterInvoiceList = After invoice list
+Invoice GroupNumberingRules=Numbering rules
+SimpleNumRefModelDesc=Return number format like %s-yymm-nnnn where yy is year, mm is month and nnnn numerix counter without reset.
+
+#
+# About page
+#
+About = About
+Invoice GroupAbout = About Invoice Group
+Invoice GroupAboutPage = Invoice Group about page
+
+#
+# New Invoice Group page
+#
+NewGroupInvoice = New grouped invoice
+NoInvoice = No invoice
+Use = Use
+NewGroupInvoiceUnique=Create grouped invoice by customer
+InvoiceValidPeriod=Filter by validation date invoice
+
+#
+# Invoice Group list page
+#
+NoOpennedInvoiceGroup = No openned Invoice Group
+DisplayAllInvoice Group=Display all Invoice Group
+HideInvoice GroupWithNoRestToPay=Hide Invoice Group withiut rest to paid
+CreationMode=Creation mode
+Invoice GroupContactFileName = Invoice Group
+NoInvoice GroupSelected=No Invoice Grouped selected
+LastSendEmailDate=Last email send
+SendEmail=Send Mail
+CannotSendMailInvoiceGroupInvoiceContact=Cannot send email for Invoice Group %s because there is no billing contact information on invoices (or contact do not have email)
+CannotSendMailInvoiceGroupEmailFrom=Cannot send email for Invoice Group %s because current user do not have email adress
+
+#
+# Invoice Group record page
+#
+Invoice Group = Invoice Group
+Invoice GroupRecord = Invoice Group record
+ConfirmDeleteInvoice Group=Are you sure to delete this Invoice Group
+Invoice GroupRemoveInvoice=Remove invoice from this Invoice Group
+SendReminderInvoice GroupRef=Dear Sir or Madam, <BR><BR> Please find in attachement an invoice according %s prestation for your group. <BR><BR>We thank you.<BR><BR>Sincerely yours,<BR><BR>The Accounting Department <BR><BR> __SIGNATURE__
+SendReminderInvoice GroupTopic=Invoice Group
+Invoice GroupSendByMail=Invoice Group send by mail
+ActionAC_GRPINV_S=Invoice Group send by mail
+UseDelay=Late paiement since %s jours
+SendReminderBillByMail=Send Invoice Group by mail
+
+#
+# PDF file
+#
+PDFTaroDescription =  Full Invoice Group PDF document model
+InvoiceReference = Invoice reference
+GroupInvoicePDFTitle=Invoices details
