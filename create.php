@@ -2,7 +2,7 @@
 /* GroupInvoice management
  * Copyright (C) 2014 Raphaël Doursenaud <rdoursenaud@gpcsolutions.fr>
  * Copyright (C) 2014 Florian HENRY <florian.henry@open-concept.pro>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -90,12 +90,12 @@ if($company_id) {
  */
 if($action === 'create') {
 	$invoices = GETPOST('invoices', 'array');
-	
+
 	$groupinvoice->dated = dol_mktime(0, 0, 0, GETPOST('dtgroupinvmonth','int'), GETPOST('dtgroupinvday','int'), GETPOST('dtgroupinvyear','int'));
-	
+
 	$groupinvoice->mode_creation='manual';
 	$groupinvoice->model_pdf=$conf->global->GROUPINVOICE_ADDON_PDF;
-	
+
 	$obj = empty ( $conf->global->GROUPINVOICE_ADDON ) ? 'mod_groupinvoice_simple' : $conf->global->GROUPINVOICE_ADDON;
 	$path_rel = dol_buildpath ( '/groupinvoice/core/modules/groupinvoice/' . $conf->global->GROUPINVOICE_ADDON . '.php' );
 	if (! empty ( $conf->global->GROUPINVOICE_ADDON ) && is_readable ( $path_rel )) {
@@ -103,15 +103,15 @@ if($action === 'create') {
 		$modGroupInvoice= new $obj ();
 		$defaultref = $modGroupInvoice->getNextValue ( $soc, $groupinvoice );
 	}
-	
+
 	$groupinvoice->ref=$defaultref;
-	
+
 	$result = $groupinvoice->create($user, $company, $invoices);
 	if ($result<O) {
 		setEventMessage($groupinvoice->error,'errors');
 	} else {
-		
-		
+
+
 		//Create the PDF on groupinvoice creation
 		$outputlangs = $langs;
 		$newlang = '';
@@ -128,12 +128,12 @@ if($action === 'create') {
 			dol_print_error($db, $result);
 			exit();
 		}
-		
-		
+
+
 		Header ('Location:'.dol_buildpath('/groupinvoice/groupinvoice.php?id='.$groupinvoice->id,1));
 	}
-	
-	
+
+
 }
 
 /*
@@ -161,7 +161,7 @@ if ($company_id <= 0) {
 	$langs->trans('Customer'),
 	'</td>',
 	'<td>',
-	$form->select_company('', 'company', 's.client = 1 OR s.client = 3', 1),
+	$form->select_thirdparty_list('', 'company', 's.client = 1 OR s.client = 3', 1),
 	'</td>',
 	'</tr>',
 	'</table>';
