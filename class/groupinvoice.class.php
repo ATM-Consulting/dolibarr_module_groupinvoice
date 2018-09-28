@@ -18,12 +18,11 @@
  */
 
 /**
- * \file    class/groupinvoice.class.php
+ * \file class/groupinvoice.class.php
  * \ingroup groupinvoice
- * \brief   CRUD (Create/Read/Update/Delete) for groupinvoice
- *          Initialy built by build_class_from_table on 2014-02-18 13:54
+ * \brief CRUD (Create/Read/Update/Delete) for groupinvoice
+ * Initialy built by build_class_from_table on 2014-02-18 13:54
  */
-
 require_once DOL_DOCUMENT_ROOT . '/core/class/commonobject.class.php';
 require_once DOL_DOCUMENT_ROOT . '/compta/facture/class/facture.class.php';
 require_once 'groupinvoiceinvoice.class.php';
@@ -33,11 +32,9 @@ require_once 'groupinvoiceinvoice.class.php';
  */
 class GroupInvoice extends CommonObject
 {
-	public $element = 'groupinvoice'; //!< Id that identify managed objects
-	public $table_element = 'groupinvoice'; //!< Name of table without prefix where object is stored
-
+	public $element = 'groupinvoice'; // !< Id that identify managed objects
+	public $table_element = 'groupinvoice'; // !< Name of table without prefix where object is stored
 	public $id;
-
 	public $entity;
 	public $ref;
 	public $datec = '';
@@ -49,8 +46,6 @@ class GroupInvoice extends CommonObject
 	public $note_public;
 	public $model_pdf;
 	public $mode_creation;
-
-
 	public $lines;
 
 	/**
@@ -58,8 +53,7 @@ class GroupInvoice extends CommonObject
 	 *
 	 * @param DoliDb $db Database handler
 	 */
-	public function __construct($db)
-	{
+	public function __construct($db) {
 		$this->db = $db;
 	}
 
@@ -72,8 +66,7 @@ class GroupInvoice extends CommonObject
 	 * @param int $notrigger 0=launch triggers after, 1=disable triggers
 	 * @return int <0 if KO, Id of created object if OK
 	 */
-	public function create($user, $company, $invoices, $notrigger = 0)
-	{
+	public function create($user, $company, $invoices, $notrigger = 0) {
 		global $conf;
 
 		$error = 0;
@@ -94,47 +87,45 @@ class GroupInvoice extends CommonObject
 		if (isset($this->model_pdf)) {
 			$this->model_pdf = trim($this->model_pdf);
 			if (empty($this->model_pdf)) {
-				$this->model_pdf='taro';
+				$this->model_pdf = 'taro';
 			}
 		}
 		if (isset($this->mode_creation)) {
 			$this->mode_creation = trim($this->mode_creation);
 			if (empty($this->mode_creation)) {
-				$this->mode_creation='manual';
+				$this->mode_creation = 'manual';
 			}
 		}
 
 		// Check parameters
-		if(get_class($user) !== 'User') {
+		if (get_class($user) !== 'User') {
 			$this->error = "ErrorBadParameter";
 			dol_syslog(__METHOD__ . " Trying to create a groupinvoice with a bad user parameter", LOG_ERR);
-			return -1;
+			return - 1;
 		}
-		if(get_class($company) !== 'Societe') {
+		if (get_class($company) !== 'Societe') {
 			$this->error = "ErrorBadParameter";
 			dol_syslog(__METHOD__ . " Trying to create a groupinvoice with a bad company parameter", LOG_ERR);
-			return -1;
+			return - 1;
 		}
-		if(!is_array($invoices)) {
+		if (! is_array($invoices)) {
 			$this->error = "ErrorBadParameter";
 			dol_syslog(__METHOD__ . " Trying to create a groupinvoice with a bad invoices parameter", LOG_ERR);
-			return -1;
+			return - 1;
 		}
 		// TODO: Put here code to add control on parameters values
 
 		// Set parameters
 		$this->entity = $conf->entity;
-		$this->amount=0;
+		$this->amount = 0;
 		// FIXME: autoref numbering module
 		$this->datec = dol_now();
-		if (dol_strlen($this->dated) == 0) $this->dated = dol_now();
-		foreach($invoices as $id) {
+		if (dol_strlen($this->dated) == 0)
+			$this->dated = dol_now();
+		foreach ( $invoices as $id ) {
 			$invoice = new Facture($this->db);
 			$invoice->fetch($id);
-			$this->amount += $invoice->total_ttc -
-				$invoice->getSommePaiement() -
-				$invoice->getSumCreditNotesUsed() -
-				$invoice->getSumDepositsUsed();
+			$this->amount += $invoice->total_ttc - $invoice->getSommePaiement() - $invoice->getSumCreditNotesUsed() - $invoice->getSumDepositsUsed();
 			unset($invoice);
 		}
 		$this->fk_company = $company->id;
@@ -155,24 +146,19 @@ class GroupInvoice extends CommonObject
 		$sql .= "model_pdf,";
 		$sql .= "mode_creation";
 
-
 		$sql .= ") VALUES (";
 
-		$sql .= " " . (!isset($this->entity) ? 'NULL' : "'" . $this->entity . "'") . ",";
-		$sql .= " " . (!isset($this->ref) ? 'NULL' : "'" . $this->db->escape($this->ref) . "'") . ",";
-		$sql .= " " . (!isset($this->datec) || dol_strlen($this->datec) == 0 ? 'NULL' : $this->db->idate(
-				$this->datec
-			)) . ",";
-		$sql .= " " . (!isset($this->dated) || dol_strlen($this->dated) == 0 ? 'NULL' : "'". $this->db->idate(
-				$this->dated
-			) ."'") . ",";
-		$sql .= " " . (!isset($this->amount) ? 'NULL' : "'" . $this->amount . "'") . ",";
-		$sql .= " " . (!isset($this->fk_company) ? 'NULL' : "'" . $this->fk_company . "'") . ",";
-		$sql .= " " . (!isset($this->fk_user_author) ? 'NULL' : "'" . $this->fk_user_author . "'") . ",";
-		$sql .= " " . (!isset($this->note_private) ? 'NULL' : "'" . $this->db->escape($this->note_private) . "'") . ",";
-		$sql .= " " . (!isset($this->note_public) ? 'NULL' : "'" . $this->db->escape($this->note_public) . "'") . ",";
-		$sql .= " " . (!isset($this->model_pdf) ? 'NULL' : "'" . $this->db->escape($this->model_pdf) . "'") . ",";
-		$sql .= " " . (!isset($this->mode_creation) ? 'NULL' : "'" . $this->db->escape($this->mode_creation) . "'") . "";
+		$sql .= " " . (! isset($this->entity) ? 'NULL' : "'" . $this->entity . "'") . ",";
+		$sql .= " " . (! isset($this->ref) ? 'NULL' : "'" . $this->db->escape($this->ref) . "'") . ",";
+		$sql .= " " . (! isset($this->datec) || dol_strlen($this->datec) == 0 ? 'NULL' : "'" . $this->db->idate($this->datec) . "'") . ",";
+		$sql .= " " . (! isset($this->dated) || dol_strlen($this->dated) == 0 ? 'NULL' : "'" . $this->db->idate($this->dated) . "'") . ",";
+		$sql .= " " . (! isset($this->amount) ? 'NULL' : "'" . $this->amount . "'") . ",";
+		$sql .= " " . (! isset($this->fk_company) ? 'NULL' : "'" . $this->fk_company . "'") . ",";
+		$sql .= " " . (! isset($this->fk_user_author) ? 'NULL' : "'" . $this->fk_user_author . "'") . ",";
+		$sql .= " " . (! isset($this->note_private) ? 'NULL' : "'" . $this->db->escape($this->note_private) . "'") . ",";
+		$sql .= " " . (! isset($this->note_public) ? 'NULL' : "'" . $this->db->escape($this->note_public) . "'") . ",";
+		$sql .= " " . (! isset($this->model_pdf) ? 'NULL' : "'" . $this->db->escape($this->model_pdf) . "'") . ",";
+		$sql .= " " . (! isset($this->mode_creation) ? 'NULL' : "'" . $this->db->escape($this->mode_creation) . "'") . "";
 
 		$sql .= ")";
 
@@ -180,44 +166,44 @@ class GroupInvoice extends CommonObject
 
 		dol_syslog(get_class($this) . "::create sql=" . $sql, LOG_DEBUG);
 		$resql = $this->db->query($sql);
-		if (!$resql) {
-			$error++;
+		if (! $resql) {
+			$error ++;
 			$this->errors[] = "Error " . $this->db->lasterror();
 		}
 
-		if (!$error) {
+		if (! $error) {
 			$this->id = $this->db->last_insert_id(MAIN_DB_PREFIX . $this->table_element);
 
-			if (!$notrigger) {
-				//// Call triggers
-				//include_once DOL_DOCUMENT_ROOT . '/core/class/interfaces.class.php';
-				//$interface=new Interfaces($this->db);
-				//$result=$interface->run_triggers('GROUPINVOICE_CREATE',$this,$user,$langs,$conf);
-				//if ($result < 0) { $error++; $this->errors=$interface->errors; }
-				//// End call triggers
+			if (! $notrigger) {
+				// // Call triggers
+				// include_once DOL_DOCUMENT_ROOT . '/core/class/interfaces.class.php';
+				// $interface=new Interfaces($this->db);
+				// $result=$interface->run_triggers('GROUPINVOICE_CREATE',$this,$user,$langs,$conf);
+				// if ($result < 0) { $error++; $this->errors=$interface->errors; }
+				// // End call triggers
 			}
 		}
 
 		// Commit or rollback
 		if ($error) {
-			foreach ($this->errors as $errmsg) {
+			foreach ( $this->errors as $errmsg ) {
 				dol_syslog(get_class($this) . "::create " . $errmsg, LOG_ERR);
 				$this->error .= ($this->error ? ', ' . $errmsg : $errmsg);
 			}
 			$this->db->rollback();
-			return -1 * $error;
+			return - 1 * $error;
 		}
 
 		$this->db->commit();
 
 		// Create related dunninnginvoice
 		$groupinvoiceinvoice = new GroupInvoiceinvoice($this->db);
-		foreach($invoices as $id) {
-			$ret = $groupinvoiceinvoice->create($this, (int) $id);
-			if($ret < 0) {
+		foreach ( $invoices as $id ) {
+			$ret = $groupinvoiceinvoice->create($this, ( int ) $id);
+			if ($ret < 0) {
 				$this->error = "";
 				dol_syslog(__METHOD__ . " Unable to create the related groupinvoice invoices", LOG_ERR);
-				return -1;
+				return - 1;
 			}
 		}
 
@@ -230,8 +216,7 @@ class GroupInvoice extends CommonObject
 	 * @param int $id Id object
 	 * @return int <0 if KO, >0 if OK
 	 */
-	public function fetch($id)
-	{
+	public function fetch($id) {
 		$sql = "SELECT";
 		$sql .= " t.rowid,";
 
@@ -269,7 +254,6 @@ class GroupInvoice extends CommonObject
 				$this->note_public = $obj->note_public;
 				$this->model_pdf = $obj->model_pdf;
 				$this->mode_creation = $obj->mode_creation;
-
 			}
 			$this->db->free($resql);
 
@@ -277,7 +261,7 @@ class GroupInvoice extends CommonObject
 		}
 		$this->error = "Error " . $this->db->lasterror();
 		dol_syslog(get_class($this) . "::fetch " . $this->error, LOG_ERR);
-		return -1;
+		return - 1;
 	}
 
 	/**
@@ -285,54 +269,55 @@ class GroupInvoice extends CommonObject
 	 *
 	 * @param int $id Id object
 	 * @param int $usedelay use delay setup into Setup->Alerts
- 	 * @param int $usedatevalid use date valid as filter
+	 * @param int $usedatevalid use date valid as filter
 	 * @return int <0 if KO, >0 if OK
 	 */
-	public function fetch_thirdparty_with_unpaiyed_invoice($user,$usedelay=0,$usedatevalid=0)
-	{
+	public function fetch_thirdparty_with_unpaiyed_invoice($user, $usedelay = 0, $usedatevalid = 0) {
 		global $conf;
 
 		$sql = "SELECT DISTINCT s.nom, s.rowid as socid";
-		$sql.= ", sum(pf.amount) as am";
-		if (! $user->rights->societe->client->voir) $sql .= ", sc.fk_soc, sc.fk_user ";
-		$sql.= " FROM ".MAIN_DB_PREFIX."societe as s";
-		if (! $user->rights->societe->client->voir) $sql .= ", ".MAIN_DB_PREFIX."societe_commerciaux as sc";
-		$sql.= ",".MAIN_DB_PREFIX."facture as f";
-		$sql.= " LEFT JOIN ".MAIN_DB_PREFIX."paiement_facture as pf ON f.rowid=pf.fk_facture ";
-		$sql.= " WHERE f.fk_soc = s.rowid";
-		$sql.= " AND f.entity = ".$conf->entity;
-		$sql.= " AND f.type IN (0,1,3) AND f.fk_statut = 1";
-		$sql.= " AND f.paye = 0";
+		$sql .= ", sum(pf.amount) as am";
+		if (! $user->rights->societe->client->voir)
+			$sql .= ", sc.fk_soc, sc.fk_user ";
+		$sql .= " FROM " . MAIN_DB_PREFIX . "societe as s";
+		if (! $user->rights->societe->client->voir)
+			$sql .= ", " . MAIN_DB_PREFIX . "societe_commerciaux as sc";
+		$sql .= "," . MAIN_DB_PREFIX . "facture as f";
+		$sql .= " LEFT JOIN " . MAIN_DB_PREFIX . "paiement_facture as pf ON f.rowid=pf.fk_facture ";
+		$sql .= " WHERE f.fk_soc = s.rowid";
+		$sql .= " AND f.entity = " . $conf->entity;
+		$sql .= " AND f.type IN (0,1,3) AND f.fk_statut = 1";
+		$sql .= " AND f.paye = 0";
 
-		if(!empty($usedelay)){
-			$date_test_valid=dol_now() - $conf->facture->client->warning_delay;
-		}else {
-			$date_test_valid=dol_now();
-		}
-
-		if (!empty($usedatevalid)) {
-			$sql .= " AND f.date_valid < '" . $this->db->idate($date_test_valid)."'";
+		if (! empty($usedelay)) {
+			$date_test_valid = dol_now() - $conf->facture->client->warning_delay;
 		} else {
-			$sql.=" AND f.date_lim_reglement < '".$this->db->idate($date_test_valid)."'";
+			$date_test_valid = dol_now();
 		}
 
-		if (! $user->rights->societe->client->voir) $sql .= " AND s.rowid = sc.fk_soc AND sc.fk_user = " .$user->id;
-		$sql.=" GROUP BY s.nom, s.rowid";
+		if (! empty($usedatevalid)) {
+			$sql .= " AND f.date_valid < '" . $this->db->idate($date_test_valid) . "'";
+		} else {
+			$sql .= " AND f.date_lim_reglement < '" . $this->db->idate($date_test_valid) . "'";
+		}
+
+		if (! $user->rights->societe->client->voir)
+			$sql .= " AND s.rowid = sc.fk_soc AND sc.fk_user = " . $user->id;
+		$sql .= " GROUP BY s.nom, s.rowid";
 
 		dol_syslog(get_class($this) . "::fetch_thirdparty_with_unpaiyed_invoice sql=" . $sql, LOG_DEBUG);
 		$resql = $this->db->query($sql);
 		if ($resql) {
-			$num=$this->db->num_rows($resql);
+			$num = $this->db->num_rows($resql);
 
-			$this->lines=array();
+			$this->lines = array();
 
-			while ($obj = $this->db->fetch_object($resql)) {
+			while ( $obj = $this->db->fetch_object($resql) ) {
 
-				$this->lines[]=array($obj->socid=>$obj->nom);
-
-
+				$this->lines[] = array(
+						$obj->socid => $obj->nom
+				);
 			}
-
 
 			$this->db->free($resql);
 
@@ -340,7 +325,7 @@ class GroupInvoice extends CommonObject
 		}
 		$this->error = "Error " . $this->db->lasterror();
 		dol_syslog(get_class($this) . "::fetch_thirdparty_with_unpaiyed_invoice " . $this->error, LOG_ERR);
-		return -1;
+		return - 1;
 	}
 
 	/**
@@ -350,8 +335,7 @@ class GroupInvoice extends CommonObject
 	 * @param int $notrigger 0=launch triggers after, 1=disable triggers
 	 * @return int <0 if KO, >0 if OK
 	 */
-	public function update($user = null, $notrigger = 0)
-	{
+	public function update($user = null, $notrigger = 0) {
 		$error = 0;
 
 		// Clean parameters
@@ -396,18 +380,10 @@ class GroupInvoice extends CommonObject
 		$sql .= " amount=" . (isset($this->amount) ? $this->amount : "null") . ",";
 		$sql .= " fk_company=" . (isset($this->fk_company) ? $this->fk_company : "null") . ",";
 		$sql .= " fk_user_author=" . (isset($this->fk_user_author) ? $this->fk_user_author : "null") . ",";
-		$sql .= " note_private=" . (isset($this->note_private) ? "'" . $this->db->escape(
-					$this->note_private
-				) . "'" : "null") . ",";
-		$sql .= " note_public=" . (isset($this->note_public) ? "'" . $this->db->escape(
-					$this->note_public
-				) . "'" : "null") . ",";
-		$sql .= " model_pdf=" . (isset($this->model_pdf) ? "'" . $this->db->escape(
-					$this->model_pdf
-				) . "'" : "null") . ",";
-		$sql .= " mode_creation=" . (isset($this->mode_creation) ? "'" . $this->db->escape(
-					$this->mode_creation
-				) . "'" : "null") . "";
+		$sql .= " note_private=" . (isset($this->note_private) ? "'" . $this->db->escape($this->note_private) . "'" : "null") . ",";
+		$sql .= " note_public=" . (isset($this->note_public) ? "'" . $this->db->escape($this->note_public) . "'" : "null") . ",";
+		$sql .= " model_pdf=" . (isset($this->model_pdf) ? "'" . $this->db->escape($this->model_pdf) . "'" : "null") . ",";
+		$sql .= " mode_creation=" . (isset($this->mode_creation) ? "'" . $this->db->escape($this->mode_creation) . "'" : "null") . "";
 
 		$sql .= " WHERE rowid=" . $this->id;
 
@@ -415,35 +391,34 @@ class GroupInvoice extends CommonObject
 
 		dol_syslog(get_class($this) . "::update sql=" . $sql, LOG_DEBUG);
 		$resql = $this->db->query($sql);
-		if (!$resql) {
-			$error++;
+		if (! $resql) {
+			$error ++;
 			$this->errors[] = "Error " . $this->db->lasterror();
 		}
 
-		if (!$error) {
-			if (!$notrigger) {
-				//// Call triggers
-				//include_once DOL_DOCUMENT_ROOT . '/core/class/interfaces.class.php';
-				//$interface=new Interfaces($this->db);
-				//$result=$interface->run_triggers('GROUPINVOICE_MODIFY',$this,$user,$langs,$conf);
-				//if ($result < 0) { $error++; $this->errors=$interface->errors; }
-				//// End call triggers
+		if (! $error) {
+			if (! $notrigger) {
+				// // Call triggers
+				// include_once DOL_DOCUMENT_ROOT . '/core/class/interfaces.class.php';
+				// $interface=new Interfaces($this->db);
+				// $result=$interface->run_triggers('GROUPINVOICE_MODIFY',$this,$user,$langs,$conf);
+				// if ($result < 0) { $error++; $this->errors=$interface->errors; }
+				// // End call triggers
 			}
 		}
 
 		// Commit or rollback
 		if ($error) {
-			foreach ($this->errors as $errmsg) {
+			foreach ( $this->errors as $errmsg ) {
 				dol_syslog(get_class($this) . "::update " . $errmsg, LOG_ERR);
 				$this->error .= ($this->error ? ', ' . $errmsg : $errmsg);
 			}
 			$this->db->rollback();
-			return -1 * $error;
+			return - 1 * $error;
 		}
 		$this->db->commit();
 		return 1;
 	}
-
 
 	/**
 	 * Delete object in database
@@ -452,24 +427,23 @@ class GroupInvoice extends CommonObject
 	 * @param int $notrigger 0=launch triggers after, 1=disable triggers
 	 * @return int <0 if KO, >0 if OK
 	 */
-	public function delete($user, $notrigger = 0)
-	{
+	public function delete($user, $notrigger = 0) {
 		$error = 0;
 
 		$this->db->begin();
 
-		if (!$error) {
-			if (!$notrigger) {
-				//// Call triggers
-				//include_once DOL_DOCUMENT_ROOT . '/core/class/interfaces.class.php';
-				//$interface=new Interfaces($this->db);
-				//$result=$interface->run_triggers('GROUPINVOICE_DELETE',$this,$user,$langs,$conf);
-				//if ($result < 0) { $error++; $this->errors=$interface->errors; }
-				//// End call triggers
+		if (! $error) {
+			if (! $notrigger) {
+				// // Call triggers
+				// include_once DOL_DOCUMENT_ROOT . '/core/class/interfaces.class.php';
+				// $interface=new Interfaces($this->db);
+				// $result=$interface->run_triggers('GROUPINVOICE_DELETE',$this,$user,$langs,$conf);
+				// if ($result < 0) { $error++; $this->errors=$interface->errors; }
+				// // End call triggers
 			}
 		}
 
-		if (!$error) {
+		if (! $error) {
 
 			$sql = "DELETE FROM " . MAIN_DB_PREFIX . 'actioncomm';
 			$sql .= " WHERE fk_element=" . $this->id;
@@ -477,8 +451,8 @@ class GroupInvoice extends CommonObject
 
 			dol_syslog(get_class($this) . "::delete sql=" . $sql);
 			$resql = $this->db->query($sql);
-			if (!$resql) {
-				$error++;
+			if (! $resql) {
+				$error ++;
 				$this->errors[] = "Error " . $this->db->lasterror();
 			}
 
@@ -487,8 +461,8 @@ class GroupInvoice extends CommonObject
 
 			dol_syslog(get_class($this) . "::delete sql=" . $sql);
 			$resql = $this->db->query($sql);
-			if (!$resql) {
-				$error++;
+			if (! $resql) {
+				$error ++;
 				$this->errors[] = "Error " . $this->db->lasterror();
 			}
 
@@ -497,20 +471,20 @@ class GroupInvoice extends CommonObject
 
 			dol_syslog(get_class($this) . "::delete sql=" . $sql);
 			$resql = $this->db->query($sql);
-			if (!$resql) {
-				$error++;
+			if (! $resql) {
+				$error ++;
 				$this->errors[] = "Error " . $this->db->lasterror();
 			}
 		}
 
 		// Commit or rollback
 		if ($error) {
-			foreach ($this->errors as $errmsg) {
+			foreach ( $this->errors as $errmsg ) {
 				dol_syslog(get_class($this) . "::delete " . $errmsg, LOG_ERR);
 				$this->error .= ($this->error ? ', ' . $errmsg : $errmsg);
 			}
 			$this->db->rollback();
-			return -1 * $error;
+			return - 1 * $error;
 		}
 		$this->db->commit();
 		return 1;
@@ -522,8 +496,7 @@ class GroupInvoice extends CommonObject
 	 *
 	 * @return void
 	 */
-	public function initAsSpecimen()
-	{
+	public function initAsSpecimen() {
 		global $conf;
 		// FIXME: There must be a simpler way
 		$now = dol_now();
@@ -550,10 +523,9 @@ class GroupInvoice extends CommonObject
 	 *
 	 * @return string
 	 */
-	public function getNameUrl()
-	{
+	public function getNameUrl() {
 		// FIXME: implement absolute URL link
-		return '<a href="'.dol_buildpath('/groupinvoice',1).'/groupinvoice.php?id=' . $this->id . '">' . $this->ref . '</a>';
+		return '<a href="' . dol_buildpath('/groupinvoice', 1) . '/groupinvoice.php?id=' . $this->id . '">' . $this->ref . '</a>';
 	}
 
 	/**
@@ -561,8 +533,7 @@ class GroupInvoice extends CommonObject
 	 *
 	 * @return string
 	 */
-	public function getNomUrl()
-	{
+	public function getNomUrl() {
 		// FIXME: implement absolute URL link
 		return $this->getNameUrl();
 	}
@@ -572,9 +543,8 @@ class GroupInvoice extends CommonObject
 	 *
 	 * @return string
 	 */
-	public function getStatus()
-	{
-		if ($this->getRest() > 0){
+	public function getStatus() {
+		if ($this->getRest() > 0) {
 			return 'Open';
 		}
 		return 'Closed';
@@ -585,14 +555,13 @@ class GroupInvoice extends CommonObject
 	 *
 	 * @return float
 	 */
-	public function getRest()
-	{
+	public function getRest() {
 		$rest = 0;
 
 		// List invoices
 		$invoices = $this->getInvoices();
 
-		foreach($invoices as $invoice) {
+		foreach ( $invoices as $invoice ) {
 			$rest += getRest($invoice);
 		}
 
@@ -604,8 +573,7 @@ class GroupInvoice extends CommonObject
 	 *
 	 * @return array
 	 */
-	public function getInvoices()
-	{
+	public function getInvoices() {
 		$list = array();
 
 		$sql = 'SELECT
@@ -616,13 +584,13 @@ class GroupInvoice extends CommonObject
 
 		$resql = $this->db->query($sql);
 
-		if($resql) {
+		if ($resql) {
 			$i = 0;
-			while($i < $this->db->num_rows($resql)) {
+			while ( $i < $this->db->num_rows($resql) ) {
 				$invoice = new Facture($this->db);
 				$invoice->fetch($this->db->fetch_object($resql)->fk_invoice);
 				array_push($list, $invoice);
-				$i++;
+				$i ++;
 			}
 		}
 
@@ -635,34 +603,33 @@ class GroupInvoice extends CommonObject
 	 * @return string
 	 */
 	public function getLastActionEmailSend($date_format) {
-
 		global $conf;
 
-		$sql='SELECT MAX(a.datep) as lastsend';
-		$sql.=' FROM '.MAIN_DB_PREFIX.'actioncomm as a';
-		$sql.=' WHERE a.entity = '.$conf->entity;
-		$sql.=' AND a.fk_soc = '. $this->fk_company;
-		$sql.=' AND a.fk_element = ' . $this->id;
-		$sql.=" AND a.elementtype = 'groupinvoice'";
+		$sql = 'SELECT MAX(a.datep) as lastsend';
+		$sql .= ' FROM ' . MAIN_DB_PREFIX . 'actioncomm as a';
+		$sql .= ' WHERE a.entity = ' . $conf->entity;
+		$sql .= ' AND a.fk_soc = ' . $this->fk_company;
+		$sql .= ' AND a.fk_element = ' . $this->id;
+		$sql .= " AND a.elementtype = 'groupinvoice'";
 
 		dol_syslog(get_class($this) . "::getLastActionEmailSend sql=" . $sql, LOG_DEBUG);
 		$resql = $this->db->query($sql);
 		if ($resql) {
-			$num=$this->db->num_rows($resql);
+			$num = $this->db->num_rows($resql);
 
-			$this->lines=array();
+			$this->lines = array();
 
 			$obj = $this->db->fetch_object($resql);
 
-			$datelastsend=$this->db->jdate($obj->lastsend);
+			$datelastsend = $this->db->jdate($obj->lastsend);
 
 			$this->db->free($resql);
 
-			return dol_print_date($datelastsend,$date_format);
+			return dol_print_date($datelastsend, $date_format);
 		}
 		$this->error = "Error " . $this->db->lasterror();
 		dol_syslog(get_class($this) . "::getLastActionEmailSend " . $this->error, LOG_ERR);
-		return -1;
+		return - 1;
 	}
 
 	/**
@@ -679,32 +646,29 @@ class GroupInvoice extends CommonObject
 	 *
 	 * @return int <0 if KO, >0 if OK
 	 */
-	public function createAction($from,$sendto,$sendtoid,$sendtocc,$subject,$message,$user) {
-
+	public function createAction($from, $sendto, $sendtoid, $sendtocc, $subject, $message, $user) {
 		global $langs;
 
-		$actiontypecode='AC_GRPINV_S';
-		$actionmsg=$langs->transnoentities('MailSentBy').' '.$from.' '.$langs->transnoentities('To').' '.$sendto.",".$sendtocc."\n";
-		if ($message)
-		{
-			$actionmsg.=$langs->transnoentities('MailTopic').": ".$subject."\n";
-			$actionmsg.=$langs->transnoentities('TextUsedInTheMessageBody').":\n";
-			$actionmsg.=$message;
+		$actiontypecode = 'AC_GRPINV_S';
+		$actionmsg = $langs->transnoentities('MailSentBy') . ' ' . $from . ' ' . $langs->transnoentities('To') . ' ' . $sendto . "," . $sendtocc . "\n";
+		if ($message) {
+			$actionmsg .= $langs->transnoentities('MailTopic') . ": " . $subject . "\n";
+			$actionmsg .= $langs->transnoentities('TextUsedInTheMessageBody') . ":\n";
+			$actionmsg .= $message;
 		}
-
 
 		require_once (DOL_DOCUMENT_ROOT . '/comm/action/class/actioncomm.class.php');
 		require_once (DOL_DOCUMENT_ROOT . '/contact/class/contact.class.php');
 		require_once (DOL_DOCUMENT_ROOT . '/societe/class/societe.class.php');
-		$contactforaction = new Contact ( $this->db );
-		$societeforaction = new Societe ( $this->db );
+		$contactforaction = new Contact($this->db);
+		$societeforaction = new Societe($this->db);
 		if ($sendtoid > 0)
-			$contactforaction->fetch ( $sendtoid );
-		if (!empty($this->fk_company))
-			$societeforaction->fetch ( $this->fk_company );
+			$contactforaction->fetch($sendtoid);
+		if (! empty($this->fk_company))
+			$societeforaction->fetch($this->fk_company);
 
 		// Insertion action
-		$actioncomm = new ActionComm ( $this->db );
+		$actioncomm = new ActionComm($this->db);
 		$actioncomm->type_code = $actiontypecode;
 		$actioncomm->code = $actiontypecode;
 		$actioncomm->label = $langs->transnoentities('GroupInvoiceSendByMail');
@@ -717,14 +681,14 @@ class GroupInvoice extends CommonObject
 		$actioncomm->contact = $contactforaction;
 		$actioncomm->societe = $societeforaction;
 		$actioncomm->author = $user; // User saving action
-		// $actioncomm->usertodo = $user; // User affected to action
+		                             // $actioncomm->usertodo = $user; // User affected to action
 		$actioncomm->userdone = $user; // User doing action
 		$actioncomm->fk_element = $this->id;
 		$actioncomm->elementtype = $this->element;
-		$ret = $actioncomm->add ( $user ); // User qui saisit l'action
+		$ret = $actioncomm->add($user); // User qui saisit l'action
 		if ($ret < 0) {
-			$this->error=$actioncomm->error;
-			return -1;
+			$this->error = $actioncomm->error;
+			return - 1;
 		} else {
 			return 1;
 		}
