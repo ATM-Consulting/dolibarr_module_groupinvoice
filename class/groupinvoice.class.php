@@ -2,7 +2,7 @@
 /* GroupInvoice management
  * Copyright (C) 2014 Raphaël Doursenaud <rdoursenaud@gpcsolutions.fr>
  * Copyright (C) 2014 Florian HENRY <florian.henry@open-concept.pro>
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or
@@ -49,8 +49,8 @@ class GroupInvoice extends CommonObject
 	public $note_public;
 	public $model_pdf;
 	public $mode_creation;
-	
-	
+
+
 	public $lines;
 
 	/**
@@ -154,7 +154,7 @@ class GroupInvoice extends CommonObject
 		$sql .= "note_public,";
 		$sql .= "model_pdf,";
 		$sql .= "mode_creation";
-		
+
 
 		$sql .= ") VALUES (";
 
@@ -163,9 +163,9 @@ class GroupInvoice extends CommonObject
 		$sql .= " " . (!isset($this->datec) || dol_strlen($this->datec) == 0 ? 'NULL' : $this->db->idate(
 				$this->datec
 			)) . ",";
-		$sql .= " " . (!isset($this->dated) || dol_strlen($this->dated) == 0 ? 'NULL' : $this->db->idate(
+		$sql .= " " . (!isset($this->dated) || dol_strlen($this->dated) == 0 ? 'NULL' : "'". $this->db->idate(
 				$this->dated
-			)) . ",";
+			) ."'") . ",";
 		$sql .= " " . (!isset($this->amount) ? 'NULL' : "'" . $this->amount . "'") . ",";
 		$sql .= " " . (!isset($this->fk_company) ? 'NULL' : "'" . $this->fk_company . "'") . ",";
 		$sql .= " " . (!isset($this->fk_user_author) ? 'NULL' : "'" . $this->fk_user_author . "'") . ",";
@@ -279,7 +279,7 @@ class GroupInvoice extends CommonObject
 		dol_syslog(get_class($this) . "::fetch " . $this->error, LOG_ERR);
 		return -1;
 	}
-	
+
 	/**
 	 * Load object in memory from the database
 	 *
@@ -303,39 +303,39 @@ class GroupInvoice extends CommonObject
 		$sql.= " AND f.entity = ".$conf->entity;
 		$sql.= " AND f.type IN (0,1,3) AND f.fk_statut = 1";
 		$sql.= " AND f.paye = 0";
-		
+
 		if(!empty($usedelay)){
 			$date_test_valid=dol_now() - $conf->facture->client->warning_delay;
 		}else {
 			$date_test_valid=dol_now();
 		}
-		
+
 		if (!empty($usedatevalid)) {
 			$sql .= " AND f.date_valid < '" . $this->db->idate($date_test_valid)."'";
 		} else {
 			$sql.=" AND f.date_lim_reglement < '".$this->db->idate($date_test_valid)."'";
 		}
-		
+
 		if (! $user->rights->societe->client->voir) $sql .= " AND s.rowid = sc.fk_soc AND sc.fk_user = " .$user->id;
 		$sql.=" GROUP BY s.nom, s.rowid";
-	
+
 		dol_syslog(get_class($this) . "::fetch_thirdparty_with_unpaiyed_invoice sql=" . $sql, LOG_DEBUG);
 		$resql = $this->db->query($sql);
 		if ($resql) {
 			$num=$this->db->num_rows($resql);
-			
+
 			$this->lines=array();
-			
+
 			while ($obj = $this->db->fetch_object($resql)) {
-				
+
 				$this->lines[]=array($obj->socid=>$obj->nom);
-	
-			
+
+
 			}
 
-		
+
 			$this->db->free($resql);
-	
+
 			return $num;
 		}
 		$this->error = "Error " . $this->db->lasterror();
@@ -470,28 +470,28 @@ class GroupInvoice extends CommonObject
 		}
 
 		if (!$error) {
-			
+
 			$sql = "DELETE FROM " . MAIN_DB_PREFIX . 'actioncomm';
 			$sql .= " WHERE fk_element=" . $this->id;
 			$sql .= " AND elementtype='groupinvoice'";
-			
+
 			dol_syslog(get_class($this) . "::delete sql=" . $sql);
 			$resql = $this->db->query($sql);
 			if (!$resql) {
 				$error++;
 				$this->errors[] = "Error " . $this->db->lasterror();
 			}
-			
+
 			$sql = "DELETE FROM " . MAIN_DB_PREFIX . 'groupinvoice_invoice';
 			$sql .= " WHERE fk_groupinvoice=" . $this->id;
-			
+
 			dol_syslog(get_class($this) . "::delete sql=" . $sql);
 			$resql = $this->db->query($sql);
 			if (!$resql) {
 				$error++;
 				$this->errors[] = "Error " . $this->db->lasterror();
 			}
-			
+
 			$sql = "DELETE FROM " . MAIN_DB_PREFIX . $this->table_element;
 			$sql .= " WHERE rowid=" . $this->id;
 
@@ -555,7 +555,7 @@ class GroupInvoice extends CommonObject
 		// FIXME: implement absolute URL link
 		return '<a href="'.dol_buildpath('/groupinvoice',1).'/groupinvoice.php?id=' . $this->id . '">' . $this->ref . '</a>';
 	}
-	
+
 	/**
 	 * Get an HTML link to the groupinvoice page with it's ref
 	 *
@@ -628,43 +628,43 @@ class GroupInvoice extends CommonObject
 
 		return $list;
 	}
-	
+
 	/**
 	 * Get last email send for this groupinvoice
 	 *
 	 * @return string
 	 */
 	public function getLastActionEmailSend($date_format) {
-		
+
 		global $conf;
-		
+
 		$sql='SELECT MAX(a.datep) as lastsend';
 		$sql.=' FROM '.MAIN_DB_PREFIX.'actioncomm as a';
 		$sql.=' WHERE a.entity = '.$conf->entity;
 		$sql.=' AND a.fk_soc = '. $this->fk_company;
 		$sql.=' AND a.fk_element = ' . $this->id;
 		$sql.=" AND a.elementtype = 'groupinvoice'";
-		
+
 		dol_syslog(get_class($this) . "::getLastActionEmailSend sql=" . $sql, LOG_DEBUG);
 		$resql = $this->db->query($sql);
 		if ($resql) {
 			$num=$this->db->num_rows($resql);
-				
+
 			$this->lines=array();
-				
+
 			$obj = $this->db->fetch_object($resql);
-			
+
 			$datelastsend=$this->db->jdate($obj->lastsend);
-		
+
 			$this->db->free($resql);
-		
+
 			return dol_print_date($datelastsend,$date_format);
 		}
 		$this->error = "Error " . $this->db->lasterror();
 		dol_syslog(get_class($this) . "::getLastActionEmailSend " . $this->error, LOG_ERR);
 		return -1;
 	}
-	
+
 	/**
 	 * Create action in actioncomm for email sending
 	 *
@@ -676,13 +676,13 @@ class GroupInvoice extends CommonObject
 	 * @param string $subject subject email
 	 * @param string $message message email
 	 * @param User $user user do action
-	 * 
+	 *
 	 * @return int <0 if KO, >0 if OK
 	 */
 	public function createAction($from,$sendto,$sendtoid,$sendtocc,$subject,$message,$user) {
-		
+
 		global $langs;
-		
+
 		$actiontypecode='AC_GRPINV_S';
 		$actionmsg=$langs->transnoentities('MailSentBy').' '.$from.' '.$langs->transnoentities('To').' '.$sendto.",".$sendtocc."\n";
 		if ($message)
@@ -691,8 +691,8 @@ class GroupInvoice extends CommonObject
 			$actionmsg.=$langs->transnoentities('TextUsedInTheMessageBody').":\n";
 			$actionmsg.=$message;
 		}
-		
-		
+
+
 		require_once (DOL_DOCUMENT_ROOT . '/comm/action/class/actioncomm.class.php');
 		require_once (DOL_DOCUMENT_ROOT . '/contact/class/contact.class.php');
 		require_once (DOL_DOCUMENT_ROOT . '/societe/class/societe.class.php');
@@ -702,7 +702,7 @@ class GroupInvoice extends CommonObject
 			$contactforaction->fetch ( $sendtoid );
 		if (!empty($this->fk_company))
 			$societeforaction->fetch ( $this->fk_company );
-		
+
 		// Insertion action
 		$actioncomm = new ActionComm ( $this->db );
 		$actioncomm->type_code = $actiontypecode;
@@ -724,7 +724,7 @@ class GroupInvoice extends CommonObject
 		$ret = $actioncomm->add ( $user ); // User qui saisit l'action
 		if ($ret < 0) {
 			$this->error=$actioncomm->error;
-			return -1;			
+			return -1;
 		} else {
 			return 1;
 		}
