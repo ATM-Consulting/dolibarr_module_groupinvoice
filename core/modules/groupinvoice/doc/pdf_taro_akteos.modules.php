@@ -389,7 +389,7 @@ class pdf_taro_akteos extends ModeleGroupInvoice
 		$this->pdf->SetFont(pdf_getPDFFont($this->outputlangs), '', $this->default_font_size);
 		$this->pdf->SetTextColorArray($this->text_color);
 
-		$footer_height = $this->newPage()+20;
+		$footer_height = $this->newPage()+25;
 
 		/*
 		 * Page body
