@@ -62,7 +62,7 @@ class modGroupInvoice extends DolibarrModules
         // (where XXX is value of numeric property 'numero' of module)
         $this->description = "Group Invoice";
         // Possible values for version are: 'development', 'experimental' or version
-        $this->version = '0.1';
+        $this->version = '1.0.1';
         // Key used in llx_const table to save module status enabled/disabled
         // (where GROUPINVOICE is value of property name of module in uppercase)
         $this->const_name = 'MAIN_MODULE_' . strtoupper($this->name);

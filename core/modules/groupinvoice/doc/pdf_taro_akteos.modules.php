@@ -389,7 +389,7 @@ class pdf_taro_akteos extends ModeleGroupInvoice
 		$this->pdf->SetFont(pdf_getPDFFont($this->outputlangs), '', $this->default_font_size);
 		$this->pdf->SetTextColorArray($this->text_color);
 
-		$footer_height = $this->newPage();
+		$footer_height = $this->newPage()+20;
 
 		/*
 		 * Page body
@@ -786,8 +786,9 @@ class pdf_taro_akteos extends ModeleGroupInvoice
 
 		$line_height = 4;
 		$col_width = $this->getPrintableWidth() / 5;
-
+		if($this->pdf->getY() > $max_y_position-25)$this->newPage();
 		$this->end_table_Y=$this->pdf->getY();
+		
 		// Total HT text
 		$this->setXRightMargin($col_width * 2);
 		$this->pdf->SetFont(pdf_getPDFFont($this->outputlangs), '', $this->default_font_size -2);
@@ -1046,6 +1047,7 @@ class pdf_taro_akteos extends ModeleGroupInvoice
 				$oldref=$invoice->ref;					
 				
 				// Page break management
+				
 				if ($this->pdf->GetY() > $max_y_position - $line_height) {
 					$this->newPage();
 					// Don't reprint header if we were displaying the last line before breaking
